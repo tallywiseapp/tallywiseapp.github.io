@@ -1225,7 +1225,8 @@ function bindView(v){
   el.onclick=ev=>{const b=ev.target.closest("[data-act]"); if(!b) return; const a=b.dataset.act, id=b.dataset.id;
     if(a==="examples") loadExamples();
     if(a==="wzStart") openWizard();
-    if(a==="wzDismiss"){ state.settings.onboarded=true; commit(); toast("You can run setup anytime from Rates & accounts"); }
+    if(a==="wzDismiss"){ state.settings.onboarded=true; commit(); toast("You can run setup anytime from Rates & accounts"); showInstall(); }
+    if(a==="showInstall") showInstall(true);
     if(a==="pinOff"){ delete state.settings.profile.pinHash; commit(); toast("PIN removed"); }
     if(a==="useDrive"&&sync.conflict){ state=normalize(sync.conflict); sync.conflict=null; try{localStorage.setItem(LS_KEY,JSON.stringify(state))}catch(e){} meta.lastSync=Date.now(); saveMeta(); sync.status="ok"; render(); runAutoRecurring(); toast("Loaded your data from Google Drive"); }
     if(a==="keepLocal"&&sync.conflict){ sync.conflict=null; meta.lastSync=Date.now(); saveMeta(); sync.status="ok"; driveSave(true); toast("Keeping this device's data. Saving it to Drive."); }
@@ -1942,7 +1943,7 @@ function standaloneSetup(){
     <div class="toolbar">${state.entries.some(e=>e.example)?'<button class="btn sm danger" type="button" data-act="clearExamples">Remove example entries</button>':'<button class="btn sm" type="button" data-act="examples">Add example entries</button>'}</div>
   </section>`;
   if(IN_CLAUDE) return backup;
-  return backup+`<section class="panel"><header><h3>Receipt reading</h3></header>
+  return backup+`<section class="panel"><header><h3>Install on your phone</h3></header><p class="small muted" style="margin:0">${isInstalled()?"Tallywise is installed on this device.":"Add Tallywise to your home screen so it opens like an app."}</p><div><button class="btn sm" type="button" data-act="showInstall">How to install</button></div></section>`+`<section class="panel"><header><h3>Receipt reading</h3></header>
     <p class="small muted" style="margin:0">${meta.anthropicKey?"Receipts are read by Claude with your Anthropic API key (about US$0.02–0.04 per receipt, billed by Anthropic).":"Receipts are scanned for free on this device. It works best on clear English receipts; always check the items."} For better accuracy on non-English and crumpled receipts, add your own <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">Anthropic API key</a>. It is kept only in this browser and is never saved to Google Drive.</p>
     <form id="keyForm" class="toolbar"><input id="akey" type="password" autocomplete="off" placeholder="${meta.anthropicKey?"Key saved · paste a new one to replace":"sk-ant-…"}" style="flex:1 1 220px;border:1px solid var(--line);border-radius:8px;padding:7px 10px;background:var(--bg);min-width:0"><button class="btn sm" type="submit">Save key</button>${meta.anthropicKey?`<button class="btn sm ghost" type="button" data-act="delKey">Remove key</button>`:""}</form>
   </section>`;
@@ -1997,6 +1998,27 @@ function openWizard(){
   renderWizard();
 }
 function closeWizard(){wz=null; $("#modal").innerHTML="";}
+/* ---------- install on phone (website only) ---------- */
+let installEvt=null; window.addEventListener("beforeinstallprompt",e=>{ e.preventDefault(); installEvt=e; });
+const isInstalled=()=>matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
+const devOS=()=>/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1)?"ios":/Android/i.test(navigator.userAgent)?"android":"desktop";
+function installSteps(os){
+  const and=`<ol class="small" style="margin:0;padding-left:20px"><li>Open this page in <b>Chrome</b>.</li><li>Tap <b>⋮</b> at the top right.</li><li>Tap <b>Install app</b> or <b>Add to Home screen</b>, then confirm.</li></ol>`;
+  const ios=`<ol class="small" style="margin:0;padding-left:20px"><li>Open this page in <b>Safari</b>.</li><li>Tap the <b>Share</b> button (square with an arrow).</li><li>Scroll down and tap <b>Add to Home Screen</b>, then <b>Add</b>.</li></ol>`;
+  if(os==="android") return and; if(os==="ios") return ios;
+  return `<p class="small muted" style="margin:0">Open <b>${esc(location.href.split("#")[0])}</b> on your phone, then:</p><b class="small">Android</b>${and}<b class="small">iPhone</b>${ios}`; }
+function showInstall(force){
+  if(IN_CLAUDE||(!force&&(isInstalled()||meta.installSeen))) return;
+  const os=devOS();
+  $("#modal").innerHTML=`<div class="overlay" id="instOv"><div class="sheet" role="dialog" aria-label="Install Tallywise" style="max-width:440px">
+    <header><h2 style="margin:0;font-size:1.1rem">📲 Install Tallywise on your phone</h2><button class="btn sm ghost" type="button" id="instX" aria-label="Close">✕</button></header>
+    <div class="body"><p class="small muted" style="margin:0">Put Tallywise on your home screen so it opens full screen like a normal app.</p>
+    ${os==="android"&&installEvt?`<div><button class="btn primary" type="button" id="instGo">Install now</button></div><p class="small faint" style="margin:0">Or do it by hand:</p>`:""}${installSteps(os)}</div>
+    <footer><button class="btn primary" type="button" id="instOk">Got it</button></footer></div></div>`;
+  const close=()=>{ meta.installSeen=true; saveMeta(); $("#modal").innerHTML=""; };
+  $("#instX").onclick=close; $("#instOk").onclick=close; $("#instOv").onclick=e=>{ if(e.target.id==="instOv") close(); };
+  const go=$("#instGo"); if(go) go.onclick=async()=>{ installEvt.prompt(); const r=await installEvt.userChoice.catch(()=>null); installEvt=null; if(r?.outcome==="accepted"){ close(); toast("Tallywise is on your home screen"); } };
+}
 function wi(g,f,label,o={}){
   const i=o.i, src=i!=null?wz.d[g][i]:wz.d[g], val=src[f]??"";
   const id=`wz_${g}_${i??""}_${f}`, at=`id="${id}" data-g="${g}" data-f="${f}" ${i!=null?`data-i="${i}"`:""}`;
@@ -2057,7 +2079,7 @@ function renderWizard(){
     if(a==="del"){ wz.d[g].splice(+b.dataset.n,1); renderWizard(); }
     if(a==="back"){ wz.err=""; wz.i--; renderWizard(); }
     if(a==="skip"){ wz.err=""; wz.skip.add(id); wz.i++; renderWizard(); $("#wzOv").scrollTop=0; }
-    if(a==="quit"){ const k=wz.i; wzApply(k).then(()=>{ closeWizard(); toast(k?"Saved what you entered. Finish setup anytime in Rates & accounts.":"Setup skipped. You can run it anytime from Rates & accounts."); }); }
+    if(a==="quit"){ const k=wz.i; wzApply(k).then(()=>{ closeWizard(); toast(k?"Saved what you entered. Finish setup anytime in Rates & accounts.":"Setup skipped. You can run it anytime from Rates & accounts."); showInstall(); }); }
     if(a==="drive"){ sync.msg=""; driveConnect(true).then(()=>{ if(!wz) return; if(state.settings.onboarded) closeWizard(); else { wzRead(); renderWizard(); } }); }
   };
 }
@@ -2072,7 +2094,7 @@ async function wzNext(){
     else if(pin&&!p.email.trim()&&!p.birthday) wz.err="Add your email or birthday too, so you can unlock the app if you forget the PIN.";
     if(wz.err) return renderWizard();
   }
-  if(id==="done"){ await wzApply(WZ.length); const nm=state.settings.profile?.name; closeWizard(); location.hash="#dashboard"; toast("You're all set"+(nm?", "+nm:"")); return; }
+  if(id==="done"){ await wzApply(WZ.length); const nm=state.settings.profile?.name; closeWizard(); location.hash="#dashboard"; toast("You're all set"+(nm?", "+nm:"")); showInstall(); return; }
   wz.i++; renderWizard(); $("#wzOv").scrollTop=0;
 }
 async function wzApply(upto){
@@ -2277,7 +2299,7 @@ function celebrate(){
 
 /* ---------- button tips: hover with a mouse, or long-press on touch ---------- */
 const TIP_IDS={fabBtn:"Add a new entry (Inflow or Outflow)",addIn:"Record money coming in",addOut:"Record money going out",draftBtn:"Unfinished entries you saved as drafts",menuBtn:"Open the menu to switch tabs",menuClose:"Close the menu",syncChip:"Where your data is saved. Tap to manage Google Drive",xClose:"Close this form",xCancel:"Close without saving",typeHelpBtn:"What this entry type means",intHelpBtn:"Explain the interest types",rescan:"Read the receipt photo again",lockAlt:"Other ways to unlock",dcKeep:"Go back to the form",dcDrop:"Close the form (you can still keep it as a draft)",dcNo:"Throw this entry away",dcSave:"Keep it in Drafts to finish later"};
-const TIP_ACTS={addRate:"Add this currency to the rates table",cancelCard:"Close without saving",clearExamples:"Remove all example entries, goals, cards and watchlist items",del:"Delete this entry",delAcct:"Remove this account",delCard:"Remove this card",delGoal:"Remove this goal",delKey:"Remove the saved API key from this device",delNo:"Keep it",delRate:"Remove this currency from the list",delYes:"Yes, delete it",draftDel:"Delete this draft",draftOpen:"Open this draft and finish it",driveConnect:"Connect Google Drive to save your data there",driveSaveNow:"Save to Google Drive now",driveUnlink:"Stop syncing with Google Drive on this device",edit:"Edit this entry",editAcct:"Edit this account",editCard:"Edit this card",examples:"Fill the app with example entries to explore",exportData:"Download a backup file of all your data",hideForm:"Close this form",keepLocal:"Keep this device's data and save it to Drive",pinOff:"Turn off the PIN lock",qCancel:"Close without saving",qEdit:"Type the current price yourself",qSave:"Save this price",recAuto:"Switch between recording it automatically and reminding you",recDel:"Delete this recurring entry",recDelYes:"Yes, delete it",recPause:"Pause or resume this recurring entry",recRecord:"Record this payment now",recSkip:"Skip this one and move to the next date",wFold:"Hide or show this section",toggleHeads:"Show or hide what's due soon, overdue, or at your target price",useDrive:"Use the data saved in Google Drive",watchDel:"Remove from the watchlist",watchDelYes:"Yes, remove it",watchEdit:"Edit this watchlist item",watchRefresh:"Get the latest prices (takes 1 to 3 minutes)",wzDismiss:"Skip setup for now",wzStart:"Start the setup guide"};
+const TIP_ACTS={addRate:"Add this currency to the rates table",cancelCard:"Close without saving",clearExamples:"Remove all example entries, goals, cards and watchlist items",del:"Delete this entry",delAcct:"Remove this account",delCard:"Remove this card",delGoal:"Remove this goal",delKey:"Remove the saved API key from this device",delNo:"Keep it",delRate:"Remove this currency from the list",delYes:"Yes, delete it",draftDel:"Delete this draft",draftOpen:"Open this draft and finish it",driveConnect:"Connect Google Drive to save your data there",driveSaveNow:"Save to Google Drive now",driveUnlink:"Stop syncing with Google Drive on this device",edit:"Edit this entry",editAcct:"Edit this account",editCard:"Edit this card",examples:"Fill the app with example entries to explore",exportData:"Download a backup file of all your data",hideForm:"Close this form",keepLocal:"Keep this device's data and save it to Drive",pinOff:"Turn off the PIN lock",qCancel:"Close without saving",qEdit:"Type the current price yourself",qSave:"Save this price",recAuto:"Switch between recording it automatically and reminding you",recDel:"Delete this recurring entry",recDelYes:"Yes, delete it",recPause:"Pause or resume this recurring entry",recRecord:"Record this payment now",recSkip:"Skip this one and move to the next date",wFold:"Hide or show this section",showInstall:"See how to put Tallywise on your home screen",toggleHeads:"Show or hide what's due soon, overdue, or at your target price",useDrive:"Use the data saved in Google Drive",watchDel:"Remove from the watchlist",watchDelYes:"Yes, remove it",watchEdit:"Edit this watchlist item",watchRefresh:"Get the latest prices (takes 1 to 3 minutes)",wzDismiss:"Skip setup for now",wzStart:"Start the setup guide"};
 const TIP_FORMS={goal:"Add a new savings goal",card:"Add an account or card",watch:"Add a stock, coin, gold or forex pair to watch",ef:"Set how big your Emergency Fund should be"};
 function tipFor(el){
   if(el.dataset.tip) return el.dataset.tip;

@@ -63,7 +63,7 @@ button{cursor:pointer}
 .top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
 .top .wrap{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;padding-block:12px}
 .brand{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-right:auto}
-.brand h1{font-size:1.35rem}
+.brand h1{font-size:1.35rem}.brand .logo{width:30px;height:30px;flex:none;margin-right:-2px}
 .brand .tag{font-size:.78rem;color:var(--ink-3)}
 .btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 14px;font-weight:600;display:inline-flex;align-items:center;gap:6px}
 .btn:hover{background:var(--sunk)}
@@ -356,7 +356,7 @@ td{vertical-align:top} td details summary{cursor:pointer;color:var(--ink-2)}
 <header class="top">
   <div class="wrap">
     <button class="menubtn" id="menuBtn" type="button" aria-expanded="false" aria-controls="tabbar"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg><span id="menuLabel">Dashboard</span></button>
-    <div class="brand"><h1>Tallywise</h1></div>
+    <div class="brand"><svg class="logo" viewBox="0 0 512 512" aria-hidden="true"><defs><linearGradient id="lgG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6a94e"/><stop offset="1" stop-color="#e0643d"/></linearGradient></defs><rect width="512" height="512" rx="112" fill="url(#lgG)"/><circle cx="256" cy="256" r="156" fill="#ffd57e" stroke="#fff4e0" stroke-width="18"/><circle cx="256" cy="256" r="122" fill="none" stroke="#f0b04f" stroke-width="8"/><g stroke="#7a3f22" stroke-width="24" stroke-linecap="round"><path d="M200 196v120M240 196v120M280 196v120M320 196v120"/><path d="M174 292L346 220"/></g></svg><h1>Tallywise</h1></div>
     <button class="chip sync" id="syncChip" type="button" title="Google Drive sync"><span class="dot"></span><span id="syncText">This device only</span></button>
   </div>
   <div id="menuShade" hidden></div>

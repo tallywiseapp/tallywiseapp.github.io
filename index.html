@@ -2,7 +2,7 @@
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="description" content="Personal inflow and outflow tracker with receipts, loans, credit cards and savings goals.">
-<meta name="theme-color" content="#0d6b5c">
+<meta name="theme-color" content="#c4512b">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -15,9 +15,9 @@
 <style>
 /* Layout: one working column; sticky top bar with the two entry buttons, hash-routed views below. */
 :root{
-  --bg:#f3f5f4; --surface:#ffffff; --sunk:#e8eceb; --line:#d5dcda;
-  --ink:#14211f; --ink-2:#4a5a57; --ink-3:#73817e;
-  --accent:#0d6b5c; --accent-ink:#ffffff; --accent-soft:#d6ece7;
+  --bg:#fbf6f0; --surface:#ffffff; --sunk:#f3e9df; --line:#ead9c8;
+  --ink:#2f1e16; --ink-2:#6b5244; --ink-3:#8c7262;
+  --accent:#c4512b; --accent-ink:#ffffff; --accent-soft:#fbe3d4;
   --in:#2a78d6; --out:#eb6834;
   --good:#0a7a3e; --warn:#a86400; --bad:#c0362c;
   --good-soft:#dcf1e4; --warn-soft:#fbecd2; --bad-soft:#f9dedb;
@@ -27,18 +27,18 @@
   --r:10px;
 }
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
-  --bg:#0f1514; --surface:#172120; --sunk:#1e2a28; --line:#2c3a38;
-  --ink:#e9f0ee; --ink-2:#b2c0bd; --ink-3:#86958f;
-  --accent:#3fb9a3; --accent-ink:#06201b; --accent-soft:#163a34;
+  --bg:#1a120d; --surface:#241912; --sunk:#2e2118; --line:#3f2e22;
+  --ink:#f8ece2; --ink-2:#d2bba9; --ink-3:#a68d7a;
+  --accent:#f29b62; --accent-ink:#2a1206; --accent-soft:#3e2416;
   --in:#3987e5; --out:#d95926;
   --good:#4cc77f; --warn:#e7a43c; --bad:#f07466;
   --good-soft:#14301f; --warn-soft:#352812; --bad-soft:#3a1a17;
   color-scheme:dark;
 }}
 :root[data-theme="dark"]{
-  --bg:#0f1514; --surface:#172120; --sunk:#1e2a28; --line:#2c3a38;
-  --ink:#e9f0ee; --ink-2:#b2c0bd; --ink-3:#86958f;
-  --accent:#3fb9a3; --accent-ink:#06201b; --accent-soft:#163a34;
+  --bg:#1a120d; --surface:#241912; --sunk:#2e2118; --line:#3f2e22;
+  --ink:#f8ece2; --ink-2:#d2bba9; --ink-3:#a68d7a;
+  --accent:#f29b62; --accent-ink:#2a1206; --accent-soft:#3e2416;
   --in:#3987e5; --out:#d95926;
   --good:#4cc77f; --warn:#e7a43c; --bad:#f07466;
   --good-soft:#14301f; --warn-soft:#352812; --bad-soft:#3a1a17;
@@ -240,7 +240,7 @@ legend{font-weight:600;font-size:.85rem;padding:0 6px}
 .lockov{background:var(--bg);z-index:40;align-items:center}
 
 /* tab heroes: each tab gets its own hue and illustration */
-body{--tab:#0d6b5c;--tab2:#14917c}
+body{--tab:#c4512b;--tab2:#e8874a}
 body[data-tab="transactions"]{--tab:#3346b8;--tab2:#5b6fe0}
 body[data-tab="loans"]{--tab:#a8521a;--tab2:#d27a2c}
 body[data-tab="goals"]{--tab:#2d7a34;--tab2:#4fa356}
@@ -275,7 +275,7 @@ nav.tabs a[aria-current="page"]{border-bottom-color:var(--tab)}
 :root{--c1:#2a78d6;--c2:#eb6834;--c3:#8a4fd0;--c4:#12a08a;--c5:#e0457b;--c6:#e3a008}
 body{background:linear-gradient(180deg,color-mix(in srgb,var(--tab) 8%,var(--bg)) 0,color-mix(in srgb,var(--tab2) 3.5%,var(--bg)) 420px,var(--bg) 900px) fixed}
 header.top{background:color-mix(in srgb,var(--tab) 4.5%,var(--surface))}
-.brand h1{background:linear-gradient(90deg,var(--c1),var(--c3) 45%,var(--c5));-webkit-background-clip:text;background-clip:text;color:transparent}
+.brand h1{background:linear-gradient(90deg,#c4512b,#e0643d 45%,#f0a040);-webkit-background-clip:text;background-clip:text;color:transparent}
 nav.tabs{gap:6px;padding:6px 0}
 nav.tabs a{border-radius:999px;border-bottom:0;padding:7px 14px}
 nav.tabs a:hover{background:color-mix(in srgb,var(--tab) 12%,transparent)}
@@ -308,7 +308,7 @@ body.menu-open .tabbar{transform:none;visibility:visible}
 .menuhead{display:flex;justify-content:space-between;align-items:center;font-family:var(--f-display);font-size:1.1rem;padding:0 4px}
 nav.tabs{flex-direction:column;gap:4px;overflow:visible;padding:0}
 nav.tabs a{display:block;padding:13px 16px;border-radius:12px;font-size:1.05rem;font-weight:600;color:var(--ink-2);transition:background-color .15s,color .15s}
-nav.tabs a[data-v="dashboard"]{--dot:#0d6b5c;--dot2:#14917c} nav.tabs a[data-v="transactions"]{--dot:#3346b8;--dot2:#5b6fe0} nav.tabs a[data-v="loans"]{--dot:#a8521a;--dot2:#d27a2c} nav.tabs a[data-v="goals"]{--dot:#2d7a34;--dot2:#4fa356} nav.tabs a[data-v="wealth"]{--dot:#9a2f6e;--dot2:#c95592} nav.tabs a[data-v="recurring"]{--dot:#6a3c9e;--dot2:#9061c9} nav.tabs a[data-v="setup"]{--dot:#3a5663;--dot2:#5b7d8c}
+nav.tabs a[data-v="dashboard"]{--dot:#c4512b;--dot2:#e8874a} nav.tabs a[data-v="transactions"]{--dot:#3346b8;--dot2:#5b6fe0} nav.tabs a[data-v="loans"]{--dot:#a8521a;--dot2:#d27a2c} nav.tabs a[data-v="goals"]{--dot:#2d7a34;--dot2:#4fa356} nav.tabs a[data-v="wealth"]{--dot:#9a2f6e;--dot2:#c95592} nav.tabs a[data-v="recurring"]{--dot:#6a3c9e;--dot2:#9061c9} nav.tabs a[data-v="setup"]{--dot:#3a5663;--dot2:#5b7d8c}
 nav.tabs a:hover{color:var(--dot);background:color-mix(in srgb,var(--dot) 8%,transparent)}
 nav.tabs a[aria-current="page"]{background:linear-gradient(135deg,color-mix(in srgb,var(--dot) 22%,var(--surface)),color-mix(in srgb,var(--dot2) 10%,var(--surface)));color:color-mix(in srgb,var(--dot) 85%,var(--ink));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dot) 30%,transparent)}
 .tabbar{background:linear-gradient(180deg,color-mix(in srgb,var(--tab) 7%,var(--surface)),var(--surface) 260px)}
@@ -615,7 +615,7 @@ function monthlySalaryPhp(){
 }
 // Progress pictures: each goal gets its own object that fills from the bottom as the goal grows
 const GOAL_ART={
-  shield:{c:"#0d6b5c",d:"M32 6 L54 14 V30 C54 44 44 54 32 58 C20 54 10 44 10 30 V14 Z"},
+  shield:{c:"#c4512b",d:"M32 6 L54 14 V30 C54 44 44 54 32 58 C20 54 10 44 10 30 V14 Z"},
   house:{c:"#c25b2a",d:"M32 8 L58 30 H51 V56 H13 V30 H6 Z M27 56 V42 H37 V56"},
   car:{c:"#2a78d6",d:"M8 44 V34 L16 22 H46 L56 34 V44 H50 A6 6 0 0 1 38 44 H26 A6 6 0 0 1 14 44 Z"},
   plane:{c:"#3a7bd5",d:"M30 6 C34 6 34 10 34 14 V26 L56 38 V44 L34 36 V48 L42 54 V58 L32 55 L22 58 V54 L30 48 V36 L8 44 V38 L30 26 V14 C30 10 30 6 30 6 Z"},

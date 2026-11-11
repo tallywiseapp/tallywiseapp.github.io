@@ -2412,11 +2412,11 @@ async function wzApply(upto){
     for(const r of d.money){ const nm=r.name.trim(); if(!nm) continue; keep.add(nm);
       if(!S.accounts.includes(nm)&&!S.cards.some(c=>c.name===nm)) S.accounts.push(nm);
       S.accountKinds[nm]=r.kind;
-      if(has(r.amount)){ rate(r.currency); S.openingBalances[nm]={amount:r2(n(r.amount)),currency:r.currency,date:D}; } else delete S.openingBalances[nm]; }
+      if(has(r.amount)){ rate(r.currency); const o=S.openingBalances[nm], same=o&&o.date&&n(o.amount)===r2(n(r.amount))&&(o.currency||BASE())===r.currency; S.openingBalances[nm]={amount:r2(n(r.amount)),currency:r.currency,date:same?o.date:D}; } else delete S.openingBalances[nm]; }
     S.accounts=S.accounts.filter(a=>keep.has(a)||state.entries.some(e=>e.account===a)||state.recurring.some(x=>x.tpl.account===a)); }
   if(inc("cards")) for(const c of d.cards){ const nm=c.name.trim(); if(!nm) continue; rate(c.currency);
     const card={name:nm,currency:c.currency,limit:n(c.limit),dueDay:n(c.dueDay)||null,openingBalance:r2(n(c.balance)),openingDate:D,plan:c.plan?{type:c.plan,monthly:n(c.monthly),monthsLeft:0,minPct:0,minAmount:0,apr:0}:null};
-    const ex=S.cards.find(x=>x.name===nm); if(ex) Object.assign(ex,card); else if(!S.accounts.includes(nm)) S.cards.push(card); }
+    const ex=S.cards.find(x=>x.name===nm); if(ex&&ex.openingDate&&n(ex.openingBalance)===card.openingBalance&&(ex.currency||BASE())===card.currency) card.openingDate=ex.openingDate; if(ex) Object.assign(ex,card); else if(!S.accounts.includes(nm)) S.cards.push(card); }
   if(inc("people")){
     for(const r of d.owedToMe) if(has(r.name)&&n(r.amount)>0) open("out","lend",r.amount,r.currency,r.name.trim(),{dueDate:r.due||"",interest:0});
     for(const r of d.iOwe) if(has(r.name)&&n(r.amount)>0) open("in","loanIn",r.amount,r.currency,r.name.trim(),{dueDate:r.due||"",interest:0}); }
